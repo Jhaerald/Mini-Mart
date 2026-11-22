@@ -1,0 +1,423 @@
+/* ==========================================================
+   MiniMart - checkout.css  (Checkout view + Order confirmation view)
+   ==========================================================
+
+   TWO SCREENS ARE STYLED HERE
+     1. #checkout-view  -> delivery form + "Your order" panel
+     2. #summary-view   -> the "Thank you" confirmation (built by main.js)
+
+   WHY EVERYTHING STARTS WITH "#checkout-view"
+   This is called SCOPING. An id selector is very strong, so these rules only
+   apply INSIDE the checkout view and can never accidentally change the
+   product page. (Example: another page might also have a ".card" class.)
+
+   ----------------------------------------------------------
+   ADJUSTMENT MADE IN THIS COMMENTED VERSION  (visual fix only)
+   ----------------------------------------------------------
+   The ORIGINAL file scoped the shared rules (.page-title, .card__title,
+   .summary-list, .summary-item, .summary-total, .btn-primary and the colour
+   variables) to "#checkout-view" ONLY. But the confirmation screen lives in a
+   DIFFERENT section (#summary-view), and main.js builds it using those very
+   same classes. So on the confirmation screen they had NO styling: that is
+   why the original index.html needed inline style="..." on its button.
+
+   FIX: wherever a rule is shared by both screens, the selector now lists
+   BOTH:   "#checkout-view .x, #summary-view .x".
+   Nothing else about the checkout screen changes.
+   ========================================================== */
+
+
+/* ---------- Colour tokens used by BOTH screens ----------
+   A comma means "apply this rule to either of these selectors".
+   (Original: only #checkout-view. #summary-view added so the confirmation
+   card can use these variables too.) */
+#checkout-view,
+#summary-view {
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-border: #e5e7eb;
+  --color-input-border: #d1d5db;
+  --color-accent: #d9480f;
+  --color-accent-hover: #b83b0a;
+  --color-error: #b91c1c;           /* red used for validation errors */
+  --color-error-bg: #fef2f2;        /* pale red background for invalid inputs */
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+  color: var(--color-text);
+}
+
+/* Reset the default browser margins on these elements, so spacing is
+   controlled only by our own rules (predictable layout). */
+#checkout-view h1,
+#checkout-view h2,
+#checkout-view p,
+#checkout-view ul,
+#summary-view h1,
+#summary-view h2,
+#summary-view p,
+#summary-view ul {
+  margin: 0;
+}
+
+/* Lists: remove the default indent and bullets. */
+#checkout-view ul,
+#summary-view ul {
+  padding: 0;
+  list-style: none;
+}
+
+
+/* ---------- Page layout (checkout only) ---------- */
+
+/* Centred content column, never wider than 1072px, with 24px breathing room
+   each side on small screens (100% - 48px). margin-inline: auto centres it. */
+#checkout-view .container {
+  width: min(1072px, 100% - 48px);
+  margin-inline: auto;
+  padding: 40px 0 64px;
+}
+
+/* "<- Back to Products" button */
+#checkout-view .checkout-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--label, #4c535e);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+#checkout-view .checkout-back-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Big page heading ("Checkout" / "Thank you, Ada!" / "Order Summary").
+   Shared by both screens. */
+#checkout-view .page-title,
+#summary-view .page-title {
+  margin-bottom: 28px;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 39px;
+}
+
+/* Two columns: flexible form on the left, fixed 380px summary on the right.
+   align-items: start stops the shorter column stretching to equal height. */
+#checkout-view .checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+
+/* ---------- Cards ---------- */
+/* The white rounded boxes holding the form and the order summary. */
+#checkout-view .card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+/* BEM naming: "card--form" is a MODIFIER (variant) of "card";
+   "card__title" is an ELEMENT inside a card. Double underscore = part of,
+   double dash = variation of. It keeps class names self-explanatory. */
+#checkout-view .card--form {
+  padding: 32px;
+}
+
+#checkout-view .card--summary {
+  padding: 24px;
+}
+
+/* Card heading ("Delivery details", "Your order", "Items Ordered").
+   Shared by both screens. */
+#checkout-view .card__title,
+#summary-view .card__title {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+#checkout-view .card__title--summary {
+  margin-bottom: 8px;
+}
+
+
+/* ---------- Form ---------- */
+/* Fields stacked vertically with 16px between them. */
+#checkout-view .form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#checkout-view .field__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19px;
+}
+
+#checkout-view .field__input {
+  display: block;
+  width: 100%;
+  height: 45px;
+  padding: 0 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: 16px;                 /* 16px+ stops iPhones zooming in when you tap a field */
+  font-weight: 400;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focused input: orange border + soft glow (replaces the default outline). */
+#checkout-view .field__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(217, 72, 15, 0.15);
+}
+
+/* ".invalid" is added/removed by checkout.js when validation fails.
+   Two classes in the selector (.field__input.invalid) = no space between them
+   = "an element that has BOTH classes". */
+#checkout-view .field__input.invalid {
+  background: var(--color-error-bg);
+  border-color: var(--color-error);
+}
+
+/* An invalid input that is also focused gets a RED glow instead of orange. */
+#checkout-view .field__input.invalid:focus {
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+}
+
+/* The red error text under each input. */
+#checkout-view .field__error {
+  margin-top: 4px;
+  color: var(--color-error);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 19px;
+}
+
+/* No error text -> no space taken. */
+#checkout-view .field__error:empty {
+  display: none;
+}
+
+/* The general message below the form (error / success). */
+#checkout-view .form-message {
+  padding: 10px 14px;
+  border: 1px solid transparent;   /* reserve the border so colour classes don't shift the layout */
+  border-radius: var(--radius-control);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 19px;
+}
+
+#checkout-view .form-message:empty {
+  display: none;
+}
+
+/* checkout.js sets the class to "form-message error" or "form-message success". */
+#checkout-view .form-message.error {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border-color: #fecaca;
+}
+
+#checkout-view .form-message.success {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+
+/* ---------- Order summary (list of items + total + button) ----------
+   Used on the checkout screen AND on the confirmation screen. */
+
+#checkout-view .summary-list,
+#summary-view .summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* One line: name on the left, price on the right. */
+#checkout-view .summary-item,
+#summary-view .summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;           /* line up the text baselines of name and price */
+  gap: 16px;
+  line-height: 24px;
+}
+
+#checkout-view .summary-item__name,
+#summary-view .summary-item__name {
+  font-weight: 400;
+}
+
+#checkout-view .summary-item__price,
+#summary-view .summary-item__price {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* "Your cart is empty." text (checkout only). */
+#checkout-view .summary-empty {
+  color: #6b7280;
+  line-height: 24px;
+}
+
+/* Safety net: keep the hidden attribute working on this element. */
+#checkout-view .summary-empty[hidden] {
+  display: none;
+}
+
+/* "Total ........ $123.00" row with a divider line above it. */
+#checkout-view .summary-total,
+#summary-view .summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+#checkout-view .summary-total__label,
+#summary-view .summary-total__label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+#checkout-view .summary-total__value,
+#summary-view .summary-total__value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+/* The big orange full-width button ("Place Order" / "Continue Shopping"). */
+#checkout-view .btn-primary,
+#summary-view .btn-primary {
+  display: block;
+  width: 100%;
+  height: 47px;
+  margin-top: 15px;
+  background: var(--color-accent);
+  color: #ffffff;
+  border: 0;
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+#checkout-view .btn-primary:hover:not(:disabled),
+#summary-view .btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+/* Greyed out when the cart is empty (checkout.js sets disabled). */
+#checkout-view .btn-primary:disabled,
+#summary-view .btn-primary:disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+
+/* ---------- Order confirmation card (built by main.js) ----------
+   These three rules were never scoped to #checkout-view in the original,
+   because they are only used on the confirmation screen. */
+
+/* The white receipt card, centred, max 640px wide. */
+.order-confirmation-card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 36px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 16px;
+}
+
+/* The green pill: "Order Confirmed . MM-123456". */
+.confirmation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+}
+
+/* Grey box listing reference, date, email, phone, address. */
+.confirmation-meta {
+  margin: 18px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  display: grid;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.confirmation-meta p {
+  margin: 0;
+}
+
+
+/* ---------- Responsive ---------- */
+
+/* Tablets and below: the two columns stack into one. */
+@media (max-width: 900px) {
+  #checkout-view .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* Phones: tighter spacing and smaller heading. */
+@media (max-width: 600px) {
+  #checkout-view .container {
+    width: calc(100% - 32px);
+    padding: 24px 0 40px;
+  }
+
+  #checkout-view .page-title,
+  #summary-view .page-title {
+    margin-bottom: 20px;
+    font-size: 28px;
+    line-height: 34px;
+  }
+
+  #checkout-view .card--form,
+  #checkout-view .card--summary,
+  .order-confirmation-card {
+    padding: 20px;
+  }
+}
